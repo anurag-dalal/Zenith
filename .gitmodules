@@ -1,0 +1,6 @@
+[submodule "Include/imgui"]
+	path = Include/imgui
+	url = git@github.com:ocornut/imgui.git
+[submodule "Include/json"]
+	path = Include/json
+	url = git@github.com:nlohmann/json.git
