@@ -115,6 +115,11 @@ file(GLOB_RECURSE UTILS_SOURCES
     "Source/Utils/*.h"
 )
 
+file(GLOB_RECURSE WORLD_SOURCES
+    "Source/World/*.cpp"
+    "Source/World/*.h"
+)
+
 # Application to print all Block registry
 add_executable(PrintAllBlockTypes 
     Source/PrintAllBlockTypes.cpp
@@ -122,6 +127,7 @@ add_executable(PrintAllBlockTypes
     ${CONFIG_MANAGER_SOURCES}
     ${SHADERS_SOURCES}
     ${UTILS_SOURCES}
+    ${WORLD_SOURCES}
 )
 
 # Define paths for resources
@@ -170,3 +176,33 @@ target_link_libraries(BlockTypeViewers
 
 # Add dependencies to ensure assets, shaders, and configs are copied before running
 add_dependencies(BlockTypeViewers copy_assets copy_shaders copy_configs)
+
+# Tree Model Viewer application
+add_executable(TreeModelViewer 
+    Source/TreeModelViewer.cpp
+    ${BLOCKS_SOURCES}
+    ${CAMERA_SOURCES}
+    ${CONFIG_MANAGER_SOURCES}
+    ${GAME_CONTROLS_SOURCES}
+    ${SHADERS_SOURCES}
+    ${UTILS_SOURCES}
+    ${WORLD_SOURCES}
+)
+
+# Define paths for resources
+target_compile_definitions(TreeModelViewer PRIVATE 
+    SHADER_DIR="${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Shaders"
+    ASSETS_DIR="${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Assets"
+    CONFIG_DIR="${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Configs"
+)
+
+# Link libraries
+target_link_libraries(TreeModelViewer
+    glad
+    glfw
+    imgui
+    ${OPENGL_gl_LIBRARY}
+)
+
+# Add dependencies to ensure assets, shaders, and configs are copied before running
+add_dependencies(TreeModelViewer copy_assets copy_shaders copy_configs)
