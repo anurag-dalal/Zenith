@@ -60,6 +60,13 @@ set(IMGUI_SRC
 add_library(imgui STATIC ${IMGUI_SRC})
 target_include_directories(imgui PUBLIC ${IMGUI_DIR} ${IMGUI_BACKENDS_DIR})
 
+# Set path to NVML include and lib
+include_directories(/usr/local/cuda-12.6/targets/x86_64-linux/include)
+
+find_library(NVML_LIB nvidia-ml
+  PATHS /usr/local/cuda-12.6/targets/x86_64-linux/lib
+)
+
 # Add GLAD
 add_subdirectory(Include/glad)
 include_directories(Include)
@@ -81,6 +88,11 @@ include_directories(${CMAKE_SOURCE_DIR}/Include/json/single_include)
 file(GLOB_RECURSE BLOCKS_SOURCES
     "Source/Blocks/*.cpp"
     "Source/Blocks/*.h"
+)
+
+file(GLOB_RECURSE CAMERA_SOURCES
+    "Source/Camera/*.cpp"
+    "Source/Camera/*.h"
 )
 
 file(GLOB_RECURSE CONFIG_MANAGER_SOURCES
@@ -129,6 +141,7 @@ add_dependencies(PrintAllBlockTypes copy_assets copy_shaders copy_configs)
 add_executable(BlockTypeViewers 
     Source/BlockTypeViewers.cpp
     ${BLOCKS_SOURCES}
+    ${CAMERA_SOURCES}
     ${CONFIG_MANAGER_SOURCES}
     ${SHADERS_SOURCES}
     ${UTILS_SOURCES}

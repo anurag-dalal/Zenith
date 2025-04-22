@@ -5,7 +5,7 @@
     "title": "MyVoxelEngine"
   },
   "fullscreen": {
-    "enabled": false,
+    "enabled": true,
     "borderless": false
   },
   "textureAtlas": {
