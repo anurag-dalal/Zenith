@@ -11,6 +11,7 @@
 #endif
 
 int main(int argc, char* argv[]) {
+    
     std::cout << "Zenith Block Registry Reader" << std::endl;
     std::cout << "============================" << std::endl;
 
@@ -36,6 +37,18 @@ int main(int argc, char* argv[]) {
         std::cout << "  Right:  " << textures.right << std::endl;
         std::cout << std::endl;
     });
+    std::cout << std::string(ASSETS_DIR) << std::endl;
+    std::cout << std::string(CONFIG_DIR) << std::endl;
+    std::cout << std::string(SHADER_DIR) << std::endl;
 
+    auto [id, textures] = registry.getBlockById("GRASS");
+    if (!id.empty()) {
+        // Block exists, use the textures
+        std::cout << "Found block: " << id << std::endl;
+        std::cout << "Top texture: " << textures.top << std::endl;
+    } else {
+        // Block doesn't exist
+        std::cout << "Block not found!" << std::endl;
+    }
     return 0;
 }

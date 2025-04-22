@@ -63,6 +63,13 @@ public:
      */
     void forEachBlock(const std::function<void(const std::string&, const BlockTextures&)>& callback) const;
 
+    /**
+     * Gets the block information by ID
+     * @param blockId The ID of the block to get
+     * @return A pair containing the block ID and its textures, or empty strings if the block doesn't exist
+     */
+    std::pair<std::string, BlockTextures> getBlockById(const std::string& blockId) const;
+
 private:
     /**
      * Process a single block entry from the JSON

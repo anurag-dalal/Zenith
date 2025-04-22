@@ -100,6 +100,11 @@ file(GLOB_RECURSE CONFIG_MANAGER_SOURCES
     "Source/ConfigManager/*.h"
 )
 
+file(GLOB_RECURSE GAME_CONTROLS_SOURCES
+    "Source/GameControls/*.cpp"
+    "Source/GameControls/*.h"
+)
+
 file(GLOB_RECURSE SHADERS_SOURCES
     "Source/Shaders/*.cpp"
     "Source/Shaders/*.h"
@@ -143,6 +148,7 @@ add_executable(BlockTypeViewers
     ${BLOCKS_SOURCES}
     ${CAMERA_SOURCES}
     ${CONFIG_MANAGER_SOURCES}
+    ${GAME_CONTROLS_SOURCES}
     ${SHADERS_SOURCES}
     ${UTILS_SOURCES}
 )

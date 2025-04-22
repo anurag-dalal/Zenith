@@ -132,4 +132,13 @@ std::string BlockRegistryReader::buildTexturePath(const std::string& texturePath
     return fullPath;
 }
 
+std::pair<std::string, BlockTextures> BlockRegistryReader::getBlockById(const std::string& blockId) const {
+    auto it = m_blockTextures.find(blockId);
+    if (it != m_blockTextures.end()) {
+        return std::make_pair(blockId, it->second);
+    }
+    // Return empty pair if block not found
+    return std::make_pair("", BlockTextures{});
+}
+
 } // namespace Zenith

@@ -19,6 +19,7 @@ git clone --recursive git@github.com:anurag-dalal/Zenith.git
 mkdir build
 cd build
 cmake ..
+cmake --build . --target all
 make
 
 # Run the application
