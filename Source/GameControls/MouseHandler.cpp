@@ -1,10 +1,11 @@
 #include "MouseHandler.h"
 #include <iostream>
+#include "imgui.h"
 
 // Initialize static member
 MouseHandler* MouseHandler::instance = nullptr;
 
-MouseHandler::MouseHandler() : firstMouse(true), lastX(0.0f), lastY(0.0f), camera(nullptr) {
+MouseHandler::MouseHandler() : firstMouse(true), lastX(0.0f), lastY(0.0f), mouseLocked(true), camera(nullptr) {
     instance = this;
 }
 
@@ -32,6 +33,15 @@ void MouseHandler::processMouseMovement(GLFWwindow* window, FreeCamera& camera) 
 void MouseHandler::mouseCallback(GLFWwindow* window, double xpos, double ypos) {
     if (!instance || !instance->camera) return;
     
+    // Check if ImGui wants to capture the mouse
+    ImGuiIO& io = ImGui::GetIO();
+    if (io.WantCaptureMouse) {
+        return; // Let ImGui handle the mouse input
+    }
+    
+    // Only process camera movement if mouse is locked
+    if (!instance->mouseLocked) return;
+    
     float xposf = static_cast<float>(xpos);
     float yposf = static_cast<float>(ypos);
     
@@ -52,6 +62,15 @@ void MouseHandler::mouseCallback(GLFWwindow* window, double xpos, double ypos) {
 
 void MouseHandler::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
     if (!instance || !instance->camera) return;
+    
+    // Check if ImGui wants to capture the mouse
+    ImGuiIO& io = ImGui::GetIO();
+    if (io.WantCaptureMouse) {
+        return; // Let ImGui handle the scroll input
+    }
+    
+    // Only process scroll if mouse is locked (for zooming with camera)
+    if (!instance->mouseLocked) return;
     
     instance->camera->processMouseScroll(static_cast<float>(yoffset));
 }

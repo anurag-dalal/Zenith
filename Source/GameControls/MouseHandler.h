@@ -15,6 +15,10 @@ public:
     // Process mouse movement for camera rotation
     void processMouseMovement(GLFWwindow* window, FreeCamera& camera);
     
+    // Set if mouse is currently locked for camera movement
+    void setMouseLocked(bool locked) { mouseLocked = locked; }
+    bool isMouseLocked() const { return mouseLocked; }
+    
     // Getters for mouse state
     bool isFirstMouse() const { return firstMouse; }
     float getLastX() const { return lastX; }
@@ -34,6 +38,7 @@ private:
     bool firstMouse;
     float lastX;
     float lastY;
+    bool mouseLocked;  // Whether mouse is locked for camera movement
     
     // Static pointer to current instance for callbacks
     static MouseHandler* instance;

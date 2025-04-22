@@ -14,6 +14,13 @@ public:
 
     // Process escape key for window closing
     static void processEscapeKey(GLFWwindow* window);
+    
+    // Toggle mouse cursor with Alt key
+    bool processAltKey(GLFWwindow* window);
+
+private:
+    bool mouseLocked = true;
+    bool altKeyPressed = false;
 };
 
 #endif // KEYBOARDHANDLER_H
