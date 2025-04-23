@@ -206,3 +206,33 @@ target_link_libraries(TreeModelViewer
 
 # Add dependencies to ensure assets, shaders, and configs are copied before running
 add_dependencies(TreeModelViewer copy_assets copy_shaders copy_configs)
+
+# Hut Model Viewer application
+add_executable(HutModelViewer 
+    Source/HutModelViewer.cpp
+    ${BLOCKS_SOURCES}
+    ${CAMERA_SOURCES}
+    ${CONFIG_MANAGER_SOURCES}
+    ${GAME_CONTROLS_SOURCES}
+    ${SHADERS_SOURCES}
+    ${UTILS_SOURCES}
+    ${WORLD_SOURCES}
+)
+
+# Define paths for resources
+target_compile_definitions(HutModelViewer PRIVATE 
+    SHADER_DIR="${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Shaders"
+    ASSETS_DIR="${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Assets"
+    CONFIG_DIR="${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Configs"
+)
+
+# Link libraries
+target_link_libraries(HutModelViewer
+    glad
+    glfw
+    imgui
+    ${OPENGL_gl_LIBRARY}
+)
+
+# Add dependencies to ensure assets, shaders, and configs are copied before running
+add_dependencies(HutModelViewer copy_assets copy_shaders copy_configs)

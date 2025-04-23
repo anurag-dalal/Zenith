@@ -1,3 +1,4 @@
+// filepath: /home/anurag/Codes/Learnings/opengl/Zenith/Source/HutModelViewer.cpp
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -20,7 +21,7 @@
 #include "GameControls/MouseHandler.h"
 #include "ConfigManager/ConfigReader.h"
 #include "Blocks/BlockRegistryReader.h"
-#include "World/Models/TreeModel.h"
+#include "World/Models/HutModel.h"
 
 // Callback function for window resize
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
@@ -64,7 +65,6 @@ int main() {
         return -1;
     }
     
-    
     // Initialize ImGui
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -95,32 +95,33 @@ int main() {
         return -1;
     }
     
-    // Create a TreeModel with max dimensions
-    int maxTreeHeight = 20;
-    int maxTreeWidth = 15;
-    std::shared_ptr<Zenith::TreeModel> treeModel = std::make_shared<Zenith::TreeModel>(maxTreeHeight, maxTreeWidth);
+    // Create a HutModel with max dimensions
+    int maxWidth = 20;
+    int maxHeight = 20;
+    int maxDepth = 20;
+    std::shared_ptr<Zenith::HutModel> hutModel = std::make_shared<Zenith::HutModel>(maxWidth, maxHeight, maxDepth);
     
-    // Generate an initial oak tree
-    treeModel->generateTree(Zenith::TreeType::BIRCH);
-    treeModel->createVoxelObjects(blockRegistry);
+    // Generate an initial hut
+    hutModel->generateHut(Zenith::HutType::BASIC, true);
+    hutModel->createVoxelObjects(blockRegistry);
     
-    // Store current tree type and height for UI
-    Zenith::TreeType currentTreeType = Zenith::TreeType::BIRCH;
-    int currentTreeHeight = 0;  // 0 means use the default random height for the tree type
+    // Store current hut type for UI
+    Zenith::HutType currentHutType = Zenith::HutType::BASIC;
+    bool withFurnishings = true;
     
-    // Position the tree model in the world
-    treeModel->setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+    // Position the hut model in the world
+    hutModel->setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
     
-    // Tree type names for ImGui
-    const char* treeTypeNames[] = {
-        "Oak", "Spruce", "Birch", "Jungle", "Acacia", "Dark Oak"
+    // Hut type names for ImGui
+    const char* hutTypeNames[] = {
+        "Basic Hut", "Round Hut", "Longhouse", "Tiered Hut"
     };
     
     // Lighting setup
     glm::vec3 lightDir(-0.2f, -1.0f, -0.3f);
     glm::vec3 lightColor(1.0f, 1.0f, 1.0f);
     
-    // Random seed for tree generation
+    // Random seed for hut generation
     unsigned int seed = 0;
     bool useCustomSeed = false;
     
@@ -170,9 +171,9 @@ int main() {
             }
         }
         
-        // Create ImGui window for tree model control
-        ImGui::SetNextWindowSize(ImVec2(1500, 1000), ImGuiCond_Always);
-        ImGui::Begin("Tree Model Viewer");
+        // Create ImGui window for hut model control
+        ImGui::SetNextWindowSize(ImVec2(800, 1000), ImGuiCond_Always);
+        ImGui::Begin("Hut Model Viewer");
         
         // Add a hint about Alt key functionality
         ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), 
@@ -209,18 +210,18 @@ int main() {
             camera.processMouseMovement(xoffset, yoffset);
         }
         
-        // Tree type selection
-        ImGui::Text("Tree Type:");
-        bool treeTypeChanged = false;
-        int treeTypeIndex = static_cast<int>(currentTreeType);
+        // Hut type selection
+        ImGui::Text("Hut Type:");
+        bool hutTypeChanged = false;
+        int hutTypeIndex = static_cast<int>(currentHutType);
         
-        if (ImGui::BeginCombo("##TreeType", treeTypeNames[treeTypeIndex])) {
-            for (int i = 0; i < IM_ARRAYSIZE(treeTypeNames); i++) {
-                bool isSelected = (treeTypeIndex == i);
-                if (ImGui::Selectable(treeTypeNames[i], isSelected)) {
-                    treeTypeIndex = i;
-                    currentTreeType = static_cast<Zenith::TreeType>(i);
-                    treeTypeChanged = true;
+        if (ImGui::BeginCombo("##HutType", hutTypeNames[hutTypeIndex])) {
+            for (int i = 0; i < IM_ARRAYSIZE(hutTypeNames); i++) {
+                bool isSelected = (hutTypeIndex == i);
+                if (ImGui::Selectable(hutTypeNames[i], isSelected)) {
+                    hutTypeIndex = i;
+                    currentHutType = static_cast<Zenith::HutType>(i);
+                    hutTypeChanged = true;
                 }
                 if (isSelected) {
                     ImGui::SetItemDefaultFocus();
@@ -229,9 +230,8 @@ int main() {
             ImGui::EndCombo();
         }
         
-        // Tree height slider
-        ImGui::Text("Tree Height (0 = random):");
-        bool heightChanged = ImGui::SliderInt("##TreeHeight", &currentTreeHeight, 0, maxTreeHeight - 2);
+        // Furnishings checkbox
+        bool furnishingsChanged = ImGui::Checkbox("Add Furnishings", &withFurnishings);
         
         // Random seed
         ImGui::Text("Random Seed:");
@@ -244,32 +244,32 @@ int main() {
         }
         
         // Regenerate button
-        if (ImGui::Button("Regenerate Tree") || treeTypeChanged || heightChanged || seedChanged) {
-            treeModel->clear();
+        if (ImGui::Button("Regenerate Hut") || hutTypeChanged || furnishingsChanged || seedChanged) {
+            hutModel->clear();
             
             if (useCustomSeed) {
-                treeModel->setRandomSeed(seed);
+                hutModel->setRandomSeed(seed);
             }
             
-            treeModel->generateTree(currentTreeType, currentTreeHeight);
-            treeModel->createVoxelObjects(blockRegistry);
+            hutModel->generateHut(currentHutType, withFurnishings);
+            hutModel->createVoxelObjects(blockRegistry);
             
             // Output some info
             int p, q, r;
-            treeModel->getDimensions(p, q, r);
-            size_t blockCount = treeModel->getVoxelCount();
+            hutModel->getDimensions(p, q, r);
+            size_t blockCount = hutModel->getVoxelCount();
             
-            std::cout << "Generated " << treeTypeNames[treeTypeIndex] << " tree with " 
+            std::cout << "Generated " << hutTypeNames[hutTypeIndex] << " with " 
                       << blockCount << " blocks in a " << p << "x" << q << "x" << r << " volume" << std::endl;
         }
         
         // Display model information
         ImGui::Separator();
-        ImGui::Text("Tree Model Information:");
+        ImGui::Text("Hut Model Information:");
         
         int p, q, r;
-        treeModel->getDimensions(p, q, r);
-        size_t blockCount = treeModel->getVoxelCount();
+        hutModel->getDimensions(p, q, r);
+        size_t blockCount = hutModel->getVoxelCount();
         
         ImGui::Text("Model Dimensions: %d x %d x %d", p, q, r);
         ImGui::Text("Total Blocks: %zu", blockCount);
@@ -289,8 +289,8 @@ int main() {
             100.0f
         );
         
-        // Render the tree model
-        treeModel->render(view, projection, lightDir, lightColor, camera.getPosition());
+        // Render the hut model
+        hutModel->render(view, projection, lightDir, lightColor, camera.getPosition());
         
         // Render ImGui
         ImGui::Render();
