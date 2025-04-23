@@ -14,8 +14,10 @@ void MouseHandler::setupMouseCallbacks(GLFWwindow* window) {
     glfwSetCursorPosCallback(window, mouseCallback);
     glfwSetScrollCallback(window, scrollCallback);
     
-    // Capture the cursor
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    // Initially capture the cursor
+    if (!ImGui::GetIO().WantCaptureMouse) {
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    }
     
     // Get initial cursor position
     double xpos, ypos;

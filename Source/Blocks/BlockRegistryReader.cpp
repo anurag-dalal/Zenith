@@ -122,13 +122,6 @@ void BlockRegistryReader::processBlockEntry(const std::string& id, const nlohman
 
 std::string BlockRegistryReader::buildTexturePath(const std::string& texturePath) const {
     std::string fullPath = m_assetsPath + texturePath;
-    // Check if the file exists
-    std::ifstream file(fullPath);
-    if (!file.good()) {
-        std::cerr << "Warning: Texture file does not exist: " << fullPath << std::endl;
-    } else {
-        std::cout << "Texture file exists: " << fullPath << std::endl;
-    }
     return fullPath;
 }
 

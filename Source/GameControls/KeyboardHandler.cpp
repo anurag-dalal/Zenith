@@ -1,5 +1,5 @@
 #include "KeyboardHandler.h"
-
+#include "imgui.h"
 void KeyboardHandler::processInput(GLFWwindow* window, FreeCamera& camera, float deltaTime) {
     // Camera keyboard controls are processed in the camera class
     camera.processKeyboard(window, deltaTime);
@@ -11,6 +11,12 @@ void KeyboardHandler::processEscapeKey(GLFWwindow* window) {
 }
 
 bool KeyboardHandler::processAltKey(GLFWwindow* window) {
+    // Check if ImGui wants keyboard input
+    ImGuiIO& io = ImGui::GetIO();
+    if (io.WantCaptureKeyboard) {
+        return mouseLocked;
+    }
+
     // Check the state of the Alt key
     int altKeyState = glfwGetKey(window, GLFW_KEY_LEFT_ALT);
     
@@ -21,8 +27,10 @@ bool KeyboardHandler::processAltKey(GLFWwindow* window) {
         mouseLocked = !mouseLocked;
         
         // Update cursor mode based on mouseLocked state
-        glfwSetInputMode(window, GLFW_CURSOR, 
-                         mouseLocked ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+        if (!io.WantCaptureMouse) {
+            glfwSetInputMode(window, GLFW_CURSOR, 
+                           mouseLocked ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+        }
     }
     else if (altKeyState == GLFW_RELEASE) {
         altKeyPressed = false;

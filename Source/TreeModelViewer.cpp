@@ -51,6 +51,9 @@ int main() {
         return -1;
     }
     
+    // Initially start with mouse unlocked for ImGui interaction
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    
     // Register window callbacks
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     
@@ -79,8 +82,8 @@ int main() {
     KeyboardHandler keyHandler;
     MouseHandler mouseHandler;
     
-    // Set up mouse callbacks
-    mouseHandler.setupMouseCallbacks(window);
+    // Set up mouse callbacks - COMMENTED OUT to avoid conflict with ImGui
+    // mouseHandler.setupMouseCallbacks(window);
     mouseHandler.processMouseMovement(window, camera);
     
     // Load block registry
@@ -141,32 +144,45 @@ int main() {
         ImGui::GetIO().FontGlobalScale = 2.5f;  // Scale up the ImGui font size
         ImGui::NewFrame();
         
-        // Create ImGui window for tree model control
-        ImGui::SetNextWindowSize(ImVec2(800, 1000), ImGuiCond_Always);
-        ImGui::Begin("Tree Model Viewer");
+        // Check if ImGui wants to capture mouse input before processing Alt key
+        bool imguiWantsMouse = ImGui::GetIO().WantCaptureMouse;
         
-        // Process Alt key to toggle mouse lock
-        if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS && !altKeyPressed) {
-            altKeyPressed = true;
-            mouseLocked = !mouseLocked;
-            glfwSetInputMode(window, GLFW_CURSOR, mouseLocked ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
-            std::cout << "Mouse lock toggled: " << (mouseLocked ? "Locked" : "Unlocked") << std::endl;
-            
-            // Reset first mouse to avoid camera jump when toggling
-            if (mouseLocked) {
-                double xpos, ypos;
-                glfwGetCursorPos(window, &xpos, &ypos);
-                mouseHandler.setLastX(static_cast<float>(xpos));
-                mouseHandler.setLastY(static_cast<float>(ypos));
-                mouseHandler.setFirstMouse(true);
+        // Only process Alt key if ImGui is not capturing mouse
+        if (!imguiWantsMouse) {
+            // Process Alt key to toggle mouse lock
+            if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS && !altKeyPressed) {
+                altKeyPressed = true;
+                mouseLocked = !mouseLocked;
+                glfwSetInputMode(window, GLFW_CURSOR, mouseLocked ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+                
+                // Reset first mouse to avoid camera jump when toggling
+                if (mouseLocked) {
+                    double xpos, ypos;
+                    glfwGetCursorPos(window, &xpos, &ypos);
+                    mouseHandler.setLastX(static_cast<float>(xpos));
+                    mouseHandler.setLastY(static_cast<float>(ypos));
+                    mouseHandler.setFirstMouse(true);
+                }
+            }
+            else if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_RELEASE) {
+                altKeyPressed = false;
             }
         }
-        else if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_RELEASE) {
-            altKeyPressed = false;
-        }
         
-        // Process camera movement when mouse is locked
-        if (mouseLocked) {
+        // Create ImGui window for tree model control
+        ImGui::SetNextWindowSize(ImVec2(1500, 1000), ImGuiCond_Always);
+        ImGui::Begin("Tree Model Viewer");
+        
+        // Add a hint about Alt key functionality
+        ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), 
+                          "Press [ALT] to %s mouse | Mouse is %s | ImGui wants mouse: %s", 
+                          mouseLocked ? "unlock" : "lock",
+                          mouseLocked ? "locked" : "unlocked",
+                          imguiWantsMouse ? "Yes" : "No");
+        ImGui::Separator();
+        
+        // Process camera movement only when mouse is locked and ImGui is not capturing input
+        if (mouseLocked && !imguiWantsMouse) {
             // Handle keyboard input for camera movement
             keyHandler.processInput(window, camera, deltaTime);
             
@@ -184,31 +200,13 @@ int main() {
             }
             
             float xoffset = xposf - mouseHandler.getLastX();
-            float yoffset = mouseHandler.getLastY() - yposf; // Reversed since y-coordinates range from bottom to top
+            float yoffset = mouseHandler.getLastY() - yposf;
             
             mouseHandler.setLastX(xposf);
             mouseHandler.setLastY(yposf);
             
             camera.processMouseMovement(xoffset, yoffset);
-            
-            // Handle keyboard input for scrolling (zoom)
-            if (glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS) {
-                camera.processMouseScroll(0.1f);
-            }
-            if (glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS) {
-                camera.processMouseScroll(-0.1f);
-            }
         }
-        
-        // Check if ImGui is being interacted with
-        bool imguiWantsMouse = ImGui::GetIO().WantCaptureMouse;
-        
-        // Add a hint about Alt key functionality
-        ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), 
-                          "Press [ALT] to %s mouse | Mouse is %s", 
-                          mouseLocked ? "unlock" : "lock",
-                          mouseLocked ? "locked" : "unlocked");
-        ImGui::Separator();
         
         // Tree type selection
         ImGui::Text("Tree Type:");
